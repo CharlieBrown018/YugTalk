@@ -37,9 +37,30 @@ class _Onboarding_ScreenState extends State<Onboarding_Screen> {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final bool isDarkMode = theme.brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Onboarding'),
+        backgroundColor: theme.appBarTheme.backgroundColor,
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const Authentication_Mod()),
+              );
+            },
+            child: Text(
+              'Skip',
+              style: TextStyle(
+                color: isDarkMode ? Colors.white : Colors.deepPurple,
+              ),
+            ),
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -77,7 +98,8 @@ class _Onboarding_ScreenState extends State<Onboarding_Screen> {
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.deepPurple,
+                          backgroundColor:
+                              isDarkMode ? Colors.white : Colors.deepPurple,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -88,8 +110,12 @@ class _Onboarding_ScreenState extends State<Onboarding_Screen> {
                             vertical: 10,
                           ),
                           child: Text(
-                            ('Back'),
-                            style: const TextStyle(fontSize: 25),
+                            'Back',
+                            style: TextStyle(
+                              fontSize: 25,
+                              color:
+                                  isDarkMode ? Colors.deepPurple : Colors.white,
+                            ),
                           ),
                         ),
                       ),
@@ -102,7 +128,7 @@ class _Onboarding_ScreenState extends State<Onboarding_Screen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(
                     onboardingPages.length,
-                    (index) => buildPageIndicator(index),
+                    (index) => buildPageIndicator(index, isDarkMode),
                   ),
                 ),
               ),
@@ -127,7 +153,8 @@ class _Onboarding_ScreenState extends State<Onboarding_Screen> {
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepPurple,
+                      backgroundColor:
+                          isDarkMode ? Colors.white : Colors.deepPurple,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -141,7 +168,10 @@ class _Onboarding_ScreenState extends State<Onboarding_Screen> {
                         _currentPage == onboardingPages.length - 1
                             ? 'Get Started'
                             : 'Next',
-                        style: const TextStyle(fontSize: 25),
+                        style: TextStyle(
+                          fontSize: 25,
+                          color: isDarkMode ? Colors.deepPurple : Colors.white,
+                        ),
                       ),
                     ),
                   ),
@@ -155,13 +185,15 @@ class _Onboarding_ScreenState extends State<Onboarding_Screen> {
     );
   }
 
-  Widget buildPageIndicator(int index) {
+  Widget buildPageIndicator(int index, bool isDarkMode) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8),
       width: 40,
       height: 20,
       decoration: BoxDecoration(
-        color: _currentPage == index ? Colors.deepPurple : Colors.grey,
+        color: _currentPage == index
+            ? (isDarkMode ? Colors.white : Colors.deepPurple)
+            : Colors.grey,
         borderRadius: BorderRadius.circular(5),
       ),
     );
@@ -186,6 +218,9 @@ class OnboardingPageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final TextTheme textTheme = theme.textTheme;
+
     return Column(
       children: [
         Expanded(
@@ -194,17 +229,16 @@ class OnboardingPageWidget extends StatelessWidget {
             children: [
               Positioned.fill(
                 child: Container(
-                  margin: EdgeInsets.only(bottom: 130), // Adjusted margin
+                  margin: const EdgeInsets.only(bottom: 130),
                   child: Image.asset(
                     onboardingPage.image,
-                    fit:
-                        BoxFit.contain, // Fit image to contain within container
+                    fit: BoxFit.contain,
                   ),
                 ),
               ),
               Positioned(
                 left: 0,
-                bottom: 20, // Adjusted bottom position
+                bottom: 20,
                 child: Container(
                   width: MediaQuery.of(context).size.width - 40,
                   child: Column(
@@ -213,8 +247,7 @@ class OnboardingPageWidget extends StatelessWidget {
                     children: [
                       Text(
                         onboardingPage.title,
-                        style: const TextStyle(
-                          fontSize: 35,
+                        style: textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                         textAlign: TextAlign.center,
@@ -222,9 +255,7 @@ class OnboardingPageWidget extends StatelessWidget {
                       const SizedBox(height: 10),
                       Text(
                         onboardingPage.subtitle,
-                        style: const TextStyle(
-                          fontSize: 20,
-                        ),
+                        style: textTheme.bodyLarge,
                         textAlign: TextAlign.center,
                       ),
                     ],

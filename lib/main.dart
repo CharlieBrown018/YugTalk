@@ -6,6 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:gtext/gtext.dart';
+import 'package:yugtalk/Screens/Onboarding_Screen.dart';
 import 'Modules/Authentication/Verification_Widget.dart';
 import 'Screens/AboutUs_Screen.dart';
 import 'Modules/Home/Home_Mod.dart';
@@ -13,6 +14,7 @@ import 'Screens/global_snackbar.dart';
 import 'firebase_options.dart';
 import 'Modules/Authentication/Authentication_Mod.dart';
 import 'Screens/location_monitor.dart';
+import '../Screens/storage_service.dart';
 
 final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
@@ -52,8 +54,9 @@ void main() async {
 
 class App extends StatelessWidget {
   final User? initialUser;
+  final StorageService _storageService = StorageService();
 
-  const App({required this.initialUser});
+  App({required this.initialUser});
 
   @override
   Widget build(BuildContext context) {
@@ -74,12 +77,51 @@ class App extends StatelessWidget {
             return MaterialApp(
               debugShowCheckedModeBanner: false,
               scaffoldMessengerKey: GlobalSnackBar.key,
-              home: const Scaffold(
-                body: Authentication_Mod(),
+              home: FutureBuilder<bool>(
+                future: _storageService.isFirstLaunch(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Scaffold(
+                      body: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+                  if (snapshot.data == true) {
+                    // First launch, show onboarding
+                    _storageService.setFirstLaunchComplete();
+                    return const Onboarding_Screen();
+                  } else {
+                    // Not first launch, go to authentication
+                    return const Authentication_Mod();
+                  }
+                },
               ),
               theme: ThemeData(
                 brightness: Brightness.light,
                 primarySwatch: Colors.deepPurple,
+                appBarTheme: const AppBarTheme(
+                  backgroundColor: Colors.deepPurple,
+                  foregroundColor: Colors.white,
+                ),
+                elevatedButtonTheme: ElevatedButtonThemeData(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.deepPurple,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ),
+              darkTheme: ThemeData(
+                brightness: Brightness.dark,
+                primarySwatch: Colors.deepPurple,
+                appBarTheme: const AppBarTheme(
+                  backgroundColor: Colors.deepPurple,
+                  foregroundColor: Colors.white,
+                ),
+                elevatedButtonTheme: ElevatedButtonThemeData(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.deepPurple,
+                  ),
+                ),
               ),
             );
           } else {
